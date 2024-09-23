@@ -34,7 +34,7 @@ R_PM = (t_PM * 10^-3) / (mu_0 * mu_PM * A_PM * 10^-6);      % Reluctance of the 
 
 
 
-w_gap = ((ID_st - l_gap) * pi) / 16;                         % Width of the airgap [mm]
+w_gap = ((ID_st - l_gap) * pi) / 16;                         % Width of the airgag [mm], the circumfrance of the 
 A_gap = l * w_gap;                                          % Area of the airgap [mm2]
 R_gap = (l_gap * 10 ^-3) / (mu_0 * A_gap * 10^-6);          % Reluctance of the arigap
 
@@ -79,19 +79,19 @@ RPM_max = 14000;    % amximum speed of the machine
 RPM_rated = RPM_max * (1 / 3);  % Rated speed of the machine, just before field weakening
 
 
-RPM = 5000;
+RPM = 1000;
 f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
 
 fprintf("The speed is: = %.0f [rpm] \n", RPM)
 for i = 1:length(N_turn)
-    E_0(i) = (sqrt(6) * pi * f .* N_turn(i) * k_w * q * r * p * phi) / N_par;
+    E_0(i) = (sqrt(12) * pi * f .* N_turn(i) * k_w * q * r * p * phi) / N_par;
     %fprintf("Induced phase2phase voltage (%d) = %.1f, N_turn(%d) = %.1f\n", i, E_0 (i), i, floor(N_turn(i)));
     i = i+1;
 end
 
 % Choosing 
-N_turn = 56;    % Chose from the table
-N_st = 6;
+N_turn = 68;    % Chose from the table
+N_st = 5;
 fprintf("Choosing the number of turns and strands:\n N_turn = %.0f, N_str = %.0f \n", N_turn, N_st);
 
 % Magnetic flux linkage

@@ -34,7 +34,7 @@ R_PM = (t_PM * 10^-3) / (mu_0 * mu_PM * A_PM * 10^-6);      % Reluctance of the 
 
 
 
-w_gap = ((ID_st - l_gap) * pi) / 24;                         % Width of the airgap [mm]
+w_gap = ((ID_st - l_gap) * pi) / 16;                         % Width of the airgag [mm], the circumfrance of the 
 A_gap = l * w_gap;                                          % Area of the airgap [mm2]
 R_gap = (l_gap * 10 ^-3) / (mu_0 * A_gap * 10^-6);          % Reluctance of the arigap
 
@@ -84,7 +84,7 @@ f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
 
 fprintf("The speed is: = %.0f [rpm] \n", RPM)
 for i = 1:length(N_turn)
-    E_0(i) = (sqrt(6) * pi * f .* N_turn(i) * k_w * q * r * p * phi) / N_par;
+    E_0(i) = (sqrt(12) * pi * f .* N_turn(i) * k_w * q * r * p * phi) / N_par;
     %fprintf("Induced phase2phase voltage (%d) = %.1f, N_turn(%d) = %.1f\n", i, E_0 (i), i, floor(N_turn(i)));
     i = i+1;
 end
