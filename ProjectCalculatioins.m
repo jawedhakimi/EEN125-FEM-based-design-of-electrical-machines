@@ -34,7 +34,7 @@ R_PM = (t_PM * 10^-3) / (mu_0 * mu_PM * A_PM * 10^-6);      % Reluctance of the 
 
 
 
-w_gap = ((ID_st - l_gap) * pi) / 8;                         % Width of the airgap [mm]
+w_gap = ((ID_st - l_gap) * pi) / 16;                         % Width of the airgap [mm]
 A_gap = l * w_gap;                                          % Area of the airgap [mm2]
 R_gap = (l_gap * 10 ^-3) / (mu_0 * A_gap * 10^-6);          % Reluctance of the arigap
 
@@ -79,7 +79,7 @@ RPM_max = 14000;    % amximum speed of the machine
 RPM_rated = RPM_max * (1 / 3);  % Rated speed of the machine, just before field weakening
 
 
-RPM = 1000;
+RPM = 5000;
 f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
 
 fprintf("The speed is: = %.0f [rpm] \n", RPM)
