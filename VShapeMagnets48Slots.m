@@ -41,7 +41,7 @@ F_c = H_c * t_PM * 10^-3;   % F_c of the PM [H/m]
 
 % Short circuit flux of PM
 A_PM = l_stack * w_PM;
-B_r = mu_0 * mu_PM * H_c;
+B_r = 1.1908; 
 Phi_r = B_r * A_PM * 10^-6;     % [Wb]
 
 
@@ -56,18 +56,20 @@ load BH_data_Prius_tut.mat
 % Extract H and B vectors from the data
 H_steel = BH_data(:, 1);  % First column corresponds to H (A_per_meter)
 B_steel = BH_data(:, 2);  % Second column corresponds to B (tesla)
-mu_steel = B_steel ./ (mu_0 .* H_steel);
-%mu_steel = B_steel(9) / (mu_0 * H_steel(9));
+mu_steel=B_steel./H_steel;
 
-% figure(2)
-% plot( - H_steel, B_steel, 'r',LineWidth = 2)
-% xlabel('H'), ylabel('B')
+figure(1)
+plot( - H_steel, B_steel, 'r',LineWidth = 2)
+hold on
+xlabel('H'), ylabel('B')
 %%
+
+
 % Reluctance of the tooth
 w_t = 5.73;     % Width of the tooth
 l_tooth = Hs0 + Hs1 + Hs2 + Rs;     % [mm] length of the flux path in the stator tooth
 A_tooth = 2.5 * w_t * l_stack;      % [mm] width of the stator yoke
-R_tooth = (l_tooth * 10^-3) ./ (mu_0 .* mu_steel .* A_tooth .* 10^-6);  % Reluctance of the tooth
+R_tooth = (l_tooth * 10^-3) ./ (mu_0 .* mu_steel .* A_tooth * 10^-6);  % Reluctance of the tooth
 
 % Reluctance of the stator yoke
 dsy1 = ID_st + 2 * (Hs0 + Hs1 + Hs2 + Rs);      % Inner diameter of the flux path on the stator yoke
@@ -90,7 +92,48 @@ R_rot_yoke = l_rot .* 10^-3 ./ (mu_0 .* mu_steel .* w_rot .* l_stack .* 10^-6); 
 
 % Total reluctance
 R_tot = 2 * (R_tooth + R_gap + R_PM) + R_st_yoke + R_rot_yoke;
-phi = F_c ./ R_tot;
+
+%%
+%PLOT OF LOAD & SOURCE LINE
+%assuming B_air gap
+Bag=0.01:0.001:2;
+flux_airgap=Bag*A_gap*10^-6;
+%we can compute flux densities in different parts of the iron core
+Brot=flux_airgap/A_rot;
+Bstator_yoke=flux_airgap/Asy;
+Bstator_tooth=flux_airgap/A_tooth;
+%nowwe have to compute the H values in order then to get mmfs
+%interpolation must be used since probably u do not get an exact value :(
+method='linear';
+Hair_gap=Bag/mu_0;
+Hstator_tooth=interp1(B_steel,H_steel,Bstator_tooth,method);
+Hstator_yoke=interp1(B_steel,H_steel,Bstator_yoke,method);
+Hrot=interp1(B_steel,H_steel,Brot,method);
+
+%Let's start with mmf drops
+
+Fr=Hrot*l_rot*10^-3;
+Fsy=Hstator_yoke*lsy*10^-3;
+Fst=Hstator_tooth*l_tooth*10^-3;
+Fag=Hair_gap*l_gap*10^-3;
+
+MMFload=Fr+2*Fag+2*Fst+Fsy;
+
+%source line
+Bmag=[0 B_r];
+Hmag=[-H_c 0];
+
+MMFmag=2*Hmag*t_PM*10^-3;
+Phimag=Bmag*A_PM*10^-6;
+
+figure(1)
+plot(MMFmag,Phimag)
+xlim([min(MMFmag) 0]);
+hold on
+plot(-MMFload,flux_airgap)
+%defining some boundaries to better understanding
+xlim([min(MMFmag) 0]);
+ylim([0 Phi_r]);
 
 
 %% Slot area
