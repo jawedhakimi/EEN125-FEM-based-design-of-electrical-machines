@@ -15,7 +15,7 @@ p = 4;              % Number of pole pairs
 k_w = 1;            % Winding factor, assuming 1
 m = 3;              % Number of phases
 r = 1;              % winding layer, 1
-q = Q / (2 * p * m);              % Slots per pole per phase
+q = Q / (2 * p * m);              % Slots per pole per phaseygv8ytvygvyt
 
 % Dimensions
 d_st = 0.8;         % Diamter of the strand [mm]
