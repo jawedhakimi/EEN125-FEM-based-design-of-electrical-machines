@@ -26,14 +26,15 @@ l_gap = 0.8;        % Airgap [mm]
 t_PM = 5;           % Magnet thickness [mm]
 D_rot = ID_st - 2 * (l_gap + t_PM);     % Rotor diamter [mm]
 
-
 % Reluctance calculations
+
+%PM
 w_PM = (D_rot * pi * 0.995) / 8;        % Width of the PM [mm]
 A_PM = l * w_PM;                        % Area of PM [mm2]
 R_PM = (t_PM * 10^-3) / (mu_0 * mu_PM * A_PM * 10^-6);      % Reluctance of the PM
 
 
-
+% Air gap
 w_gap = ((ID_st - l_gap) * pi) / 16;                         % Width of the airgag [mm], the circumfrance of the 
 A_gap = l * w_gap;                                          % Area of the airgap [mm2]
 R_gap = (l_gap * 10 ^-3) / (mu_0 * A_gap * 10^-6);          % Reluctance of the arigap
@@ -50,8 +51,9 @@ Phi_r = MMF / R_PM;     % [Wb]
 phi = MMF / (R_PM + R_gap);         % Short circuit flux [Wb], Assuming ideal steel with no MMF loss and infinit permeability 
 
 % Calculating slot area
+Hs0 = 4;
 A_outer = (((2/3) * (OD_st - ID_st)) + ID_st)^2 * pi / 4;   % Assuming the slot covers 2/3 of the yoke area
-A_iner = 154^2 * pi / 4;
+A_iner = (ID_st + Hs0)^2 * pi / 4;
 A_slot = (A_outer - A_iner) / 48;                           % Slot area [mm2]
 
 % Rated current
