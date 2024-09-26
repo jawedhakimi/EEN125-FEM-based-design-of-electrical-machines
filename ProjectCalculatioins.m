@@ -19,7 +19,7 @@ q = Q / (2 * p * m);              % Slots per pole per phase
 
 % Dimensions
 d_st = 0.8;         % Diamter of the strand [mm]
-l = 150;            % Active lenght of the machine [mm]
+L_stack = 150;            % Active lenght of the machine [mm]
 OD_st = 250;        % Stator outer diameter [mm]
 ID_st = 150;        % Stator inner diamter [mm], Assumption
 l_gap = 0.8;        % Airgap [mm]
@@ -30,13 +30,13 @@ D_rot = ID_st - 2 * (l_gap + t_PM);     % Rotor diamter [mm]
 
 %PM
 w_PM = (D_rot * pi * 0.995) / 8;        % Width of the PM [mm]
-A_PM = l * w_PM;                        % Area of PM [mm2]
+A_PM = L_stack * w_PM;                        % Area of PM [mm2]
 R_PM = (t_PM * 10^-3) / (mu_0 * mu_PM * A_PM * 10^-6);      % Reluctance of the PM
 
 
 % Air gap
 w_gap = ((ID_st - l_gap) * pi) / 16;                         % Width of the airgag [mm], the circumfrance of the 
-A_gap = l * w_gap;                                          % Area of the airgap [mm2]
+A_gap = L_stack * w_gap;                                          % Area of the airgap [mm2]
 R_gap = (l_gap * 10 ^-3) / (mu_0 * A_gap * 10^-6);          % Reluctance of the arigap
 
 
@@ -73,15 +73,12 @@ end
 
 
 fprintf("Calculating no-load voltage \n")
-
-
-
 % Calculating no-load voltage
 RPM_max = 14000;    % amximum speed of the machine
 RPM_rated = RPM_max * (1 / 3);  % Rated speed of the machine, just before field weakening
 
 
-RPM = 1000;
+RPM = 4600;
 f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
 
 fprintf("The speed is: = %.0f [rpm] \n", RPM)
@@ -109,13 +106,21 @@ N_q = N_d;
 L_d = (N_d^2 * p) / (R_d * N_par^2);    % d-axis inductance
 L_q = (N_q^2 * p) / (R_q * N_par^2);    % q-axis inductance
 
-% w = 2 * pi * (RPM * p / 60);    % [rad/s]
-% U_lineAmpMax = 800 * 0.995;     % Terminal voltage [V]
-% N_turnNew = (U_lineAmpMax * N_par) / (sqrt(3) * k_w * p * q * phi * w * r * p)
-
 
 EMF = (sqrt(2) * pi * f .* N_turn * k_w * q * r * p * phi) / N_par;     % RMS phase voltage
 EMF_phase2phase_max = EMF * sqrt(6);    % maximum phase2phase voltage
 I_rms_phase = N_par * N_st * A_strand * J;
 fprintf('The maximume phase2phase induced voltage at: \n %.0f [RPM] is  %.2f [V] and I_phase = %.2f [A] \n', RPM, EMF_phase2phase_max, I_rms_phase)
 
+%%
+% Correct function name
+data = readtable('withAdot_bitch.csv');
+% Extract columns as arrays (vectors)
+D = data.('Distance_mm_');  % Adjust this to the actual column name from your CSV file
+B = data.('B_normal__');
+% Save the variables to a .mat file
+save('vectors_for_matlab.mat', 'D', 'B');
+
+% Time step delta(t)
+delta = 0.5845;
+phi_simulatioin = sum(delta * L_stack * 10^-6 .* -B);  % [mWb]
