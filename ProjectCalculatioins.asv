@@ -9,7 +9,6 @@ mu_0 = 4* pi *10^-7; % Vacuum permeability [H/m]
 mu_PM = 1.03;        % Magnets relative permeability
 
 
-
 % Given parameters
 Q = 24;             % Number of slots
 p = 4;              % Number of pole pairs
@@ -79,13 +78,13 @@ RPM_max = 14000;    % amximum speed of the machine
 RPM_rated = RPM_max * (1 / 3);  % Rated speed of the machine, just before field weakening
 
 
-RPM = 1000;
+RPM = 4600;
 f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
 
 fprintf("The speed is: = %.0f [rpm] \n", RPM)
 for i = 1:length(N_turn)
     E_0(i) = (sqrt(12) * pi * f .* N_turn(i) * k_w * q * r * p * phi) / N_par;
-    fprintf("Induced phase2phase voltage (%d) = %.1f, N_turn(%d) = %.1f\n", i, E_0 (i), i, floor(N_turn(i)));
+    %fprintf("Induced phase2phase voltage (%d) = %.1f, N_turn(%d) = %.1f\n", i, E_0 (i), i, floor(N_turn(i)));
     i = i+1;
 end
 
@@ -128,12 +127,3 @@ phi_simulatioin = sum(delta * L_stack * 10^-6 .* -B);  % [mWb]
 
 
 %% Calculating L_d and L_q from simulations
-wt = 0;
-T = (2/3)*[cos(wt) cos(wt-(2*pi/3)) cos(wt+(2*pi)/3)
--sin(wt) -sin(wt-(2*pi)/3) -sin(wt+(2*pi)/3)
-1/2 1/2 1/2];
-
-L_phase = [36.382 -9.7059 -9.8755
-    -9.7059 36.431 -9.7093
-    -9.8755 -9.7093 36.439];
-L_dq = T * L_phase * inv(T)
