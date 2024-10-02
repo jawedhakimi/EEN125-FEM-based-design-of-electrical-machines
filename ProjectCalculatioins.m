@@ -112,9 +112,8 @@ B = data.('B_normal__');
 % Save the variables to a .mat file
 save('vectors_for_matlab.mat', 'D', 'B');
 
-% Time step delta(t)
-delta = 0.5845; 
-phi_simulatioin = sum(delta * L_stack * 10^-6 .* -B);  % [mWb]
+delta = 0.5845 * 10^-3; % Distance step delta
+phi_simulation = sum(delta * L_stack .* -B);  % [mWb]
 
 
 %% Calculating L_d and L_q from simulations 48 slot
@@ -126,5 +125,5 @@ T = (2/3)*[cos(wt) cos(wt-(2*pi/3)) cos(wt+(2*pi)/3)
 L_phase = [53.674 -7.0635 -7.0335
            -7.0635 53.28 -7.0315
            -7.0335 -7.0315 53.519];
-L_dq = T * L_phase * inv(T)
+L_dq = T * L_phase * inv(T);
 
