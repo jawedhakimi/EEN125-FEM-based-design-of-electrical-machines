@@ -1,5 +1,3 @@
-
-
 clear
 close all
 clc
@@ -8,9 +6,8 @@ clc
 mu_0 = 4* pi *10^-7; % Vacuum permeability [H/m]
 mu_PM = 1.03;        % Magnets relative permeability
 
-
 % Given parameters
-Q = 24;             % Number of slots
+Q = 48;             % Number of slots  /////////////////////////////////// Change for 24/48 slots \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 p = 4;              % Number of pole pairs
 k_w = 1;            % Winding factor, assuming 1
 m = 3;              % Number of phases
@@ -18,79 +15,72 @@ r = 1;              % winding layer, 1
 q = Q / (2 * p * m);              % Slots per pole per phase
 
 % Dimensions
-d_st = 0.8;         % Diamter of the strand [mm]
-L_stack = 150;            % Active lenght of the machine [mm]
-OD_st = 250;        % Stator outer diameter [mm]
-ID_st = 150;        % Stator inner diamter [mm], Assumption
-l_gap = 0.8;        % Airgap [mm]
-t_PM = 5;           % Magnet thickness [mm]
-D_rot = ID_st - 2 * (l_gap + t_PM);     % Rotor diamter [mm]
+d_st = 0.0008;              % Diamter of the strand [m]
+L_stack = 0.150;            % Active lenght of the machine [m]
+OD_st = 0.250;              % Stator outer diameter [m]
+ID_st = 0.150;              % Stator inner diamter [m], Assumption
+l_gap = 0.0008;             % Airgap [m]
+t_PM = 0.005;               % Magnet thickness [m]
+D_rot = ID_st - 2 * (l_gap + t_PM);     % Rotor diamter [m]
 
 % Reluctance calculations
 
 %PM
-w_PM = (D_rot * pi * 0.995) / 8;        % Width of the PM [mm]
-A_PM = L_stack * w_PM;                        % Area of PM [mm2]
-R_PM = (t_PM * 10^-3) / (mu_0 * mu_PM * A_PM * 10^-6);      % Reluctance of the PM
+w_PM = (D_rot * pi * 0.995) / 8;        % Width of the PM [m]
+A_PM = L_stack * w_PM;                  % Area of PM [m2]
+R_PM = t_PM / (mu_0 * mu_PM * A_PM);    % Reluctance of the PM
 
 
 % Air gap
-w_gap = ((ID_st - l_gap) * pi) / 16;                         % Width of the airgag [mm], the circumfrance of the 
-A_gap = L_stack * w_gap;                                          % Area of the airgap [mm2]
-R_gap = (l_gap * 10 ^-3) / (mu_0 * A_gap * 10^-6);          % Reluctance of the arigap
+w_gap = ((ID_st - l_gap) * pi) / 8; % Width of the airgag [m], the circumfrance of the 
+A_gap = L_stack * w_gap;            % Area of the airgap [m2]
+R_gap = l_gap  / (mu_0 * A_gap);    % Reluctance of the arigap
 
 
 % Calculating the MMF of the PM
-H_c = 920000;               % Coercivity of the PM, choosing N36Z_20
-MMF = H_c * t_PM * 10^-3;   % MMF of the PM [H/m]
+H_c = 920000;                       % Coercivity of the PM, choosing N36Z_20
+MMF = H_c * t_PM;                   % MMF of the PM [H/m]
 
 % Short circuit flux of PM
-Phi_r = MMF / R_PM;     % [Wb]
+Phi_r = MMF / R_PM;                 % [Wb]
 
 % Calculating the flux
 phi = MMF / (R_PM + R_gap);         % Short circuit flux [Wb], Assuming ideal steel with no MMF loss and infinit permeability 
 
 % Calculating slot area
-Hs0 = 4;
+Hs0 = 0.004;
 A_outer = (((2/3) * (OD_st - ID_st)) + ID_st)^2 * pi / 4;   % Assuming the slot covers 2/3 of the yoke area
 A_iner = (ID_st + Hs0)^2 * pi / 4;
-A_slot = (A_outer - A_iner) / 48;                           % Slot area [mm2]
+A_slot = (A_outer - A_iner) / (2 * Q);                      % Slot area [m2]
+
+A_slot48 = 197.15*10^-6;            % [m^2]from Simulation for 48 slots
+A_slot24 = 403.05*10^-6;            % [m^2]from Simulation for 24 slots
+A_slot =  A_slot48;                 % /////////////////////////////////// Change for 24/48 slots \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\                                    
 
 % Rated current
-J = 5;                          % Curent density per strand [A/mm2]
-N_par = 8;                      % Number parallel branches
-A_strand = 0.8^2 * pi / 4;      % Strand area, neglecting the insulatioin
+J = 5*10^6;                         % Curent density per strand [A/mm2]
+N_series = 1;                       % Number of series branches
+N_par = (2 * p) / N_series;         % Number parallel branches (N_par * N_ser = 2*p)
+A_strand = (d_st^2 * pi) / 4;         % Strand area, neglecting the insulatioin
+
+% Calculating no-load voltage
+RPM = 4400;
+f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
+fprintf("Calculating no-load voltage at: %d \n",RPM)
 
 % Calculating number of turns and current as function of number of strands
 n = 13;     % number of loops/ number of possible strands
 N_st = linspace(1,n,n);
 for i = 1:length(N_st)
-    N_turn(i) = (A_slot * 0.45) ./ ((pi / 4) * d_st^2 * N_st(i));
+    N_turn(i) = (A_slot * 0.45) ./ (A_strand * N_st(i));
     I_rms(i) = N_par * N_st(i) * A_strand * J;
-    %fprintf('N_st(%d) = %.0f, N_turn(%d) = %.0f, I_phase(%d) = %.1f,\n', i, N_st(i), i, floor(N_turn(i)), i ,I_rms(i));
-    i = i+1;
-end
-
-
-fprintf("Calculating no-load voltage \n")
-% Calculating no-load voltage
-RPM_max = 14000;    % amximum speed of the machine
-RPM_rated = RPM_max * (1 / 3);  % Rated speed of the machine, just before field weakening
-
-
-RPM = 4600;
-f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
-
-fprintf("The speed is: = %.0f [rpm] \n", RPM)
-for i = 1:length(N_turn)
     E_0(i) = (sqrt(12) * pi * f .* N_turn(i) * k_w * q * r * p * phi) / N_par;
-    %fprintf("Induced phase2phase voltage (%d) = %.1f, N_turn(%d) = %.1f\n", i, E_0 (i), i, floor(N_turn(i)));
-    i = i+1;
+    fprintf('N_st = %d, N_turn = %d, I_phase = %.1f, E_0 = %0.1f \n', N_st(i), floor(N_turn(i)) ,I_rms(i),E_0(i));
 end
 
 % Choosing 
-N_turn = 68;    % Chose from the table
-N_st = 5;
+N_turn = 60;    % /////////////////////////////////// Change for 24/48 slots \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+N_st = 6;
 fprintf("Choosing the number of turns and strands:\n N_turn = %.0f, N_str = %.0f \n", N_turn, N_st);
 
 % Magnetic flux linkage
@@ -112,6 +102,7 @@ EMF_phase2phase_max = EMF * sqrt(6);    % maximum phase2phase voltage
 I_rms_phase = N_par * N_st * A_strand * J;
 fprintf('The maximume phase2phase induced voltage at: \n %.0f [RPM] is  %.2f [V] and I_phase = %.2f [A] \n', RPM, EMF_phase2phase_max, I_rms_phase)
 
+
 %%
 % Correct function name
 data = readtable('withAdot_bitch.csv');
@@ -122,8 +113,18 @@ B = data.('B_normal__');
 save('vectors_for_matlab.mat', 'D', 'B');
 
 % Time step delta(t)
-delta = 0.5845;
+delta = 0.5845; 
 phi_simulatioin = sum(delta * L_stack * 10^-6 .* -B);  % [mWb]
 
 
-%% Calculating L_d and L_q from simulations
+%% Calculating L_d and L_q from simulations 48 slot
+wt = 0;
+T = (2/3)*[cos(wt) cos(wt-(2*pi/3)) cos(wt+(2*pi)/3)
+-sin(wt) -sin(wt-(2*pi)/3) -sin(wt+(2*pi)/3)
+1/2 1/2 1/2];
+
+L_phase = [53.674 -7.0635 -7.0335
+    -7.0635 53.28 -7.0315
+    -7.0335 -7.0315 53.519];
+L_dq = T * L_phase * inv(T);
+
