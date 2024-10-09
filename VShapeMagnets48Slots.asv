@@ -14,37 +14,38 @@ Q = 48;             % Number of slots
 p = 4;              % Number of pole pairs
 k_w = 1;            % Winding factor, assuming 1
 m = 3;              % Number of phases
-r = 1;              % winding layer, 1
+r = 2;              % winding layer
 q = Q / (2 * p * m);              % Slots per pole per phaseygv8ytvygvyt
+k_fill = 0.45;
 
 % Given Dimensions
-m = 10^-3;
-d_st = 0.8 * m;         % Diamter of the strand [m]
-L_stack = 150 * m;      % Active lenght of the machine [m]
-OD_st = 269.24 * m;        % Stator outer diameter [m]
-ID_st = 161.9 * m;        % Stator inner diamter [m]
-OD_rot = 160.4 * m;
-l_gap = 0.73 * m;        % Airgap [m]
+d_st = 0.0008;          % Diamter of the strand [m]
+L_stack = 0.150;        % Active lenght of the machine [m]
+OD_st = 0.26924;        % Stator outer diameter [m]
+ID_st = 0.1619;         % Stator inner diamter [m]
+OD_rot = 0.1604;
+l_gap = 0.00073;        % Airgap [m]
 
-
-w_PM = 32 * m;          % Magets width[m]
-t_PM = 6.48 * m;        % Magnet thickness [m]
-D_rot = (ID_st - 2 * l_gap) * m;     % Rotor diamter [m]
+w_PM = 0.032;                       % Magets width[m]
+t_PM = 0.00648;                     % Magnet thickness [m]
+D_rot = (ID_st - 2 * l_gap);        % Rotor diamter [m]
 
 % for the slot
-Hs0 = 1.03 * m;
-Hs1 = 0 * m;
-Hs2 = 29.5 * m;
-Rs = 5 * m;
+Hs0 = 0.00103;
+Hs1 = 0;
+Hs2 = 0.0295;
+Rs = 0.005;
 
 % Slot area
+% Winding area 32.2 mm^2, 154.2 + 2*32.2 is the total slot area, gives fill
+% factor of 42%
 A_slot = (336.8 + 66.24) * 10^-6;      % Slot area [m2], from Ansys
 
 % Calculated dimensions
 A_gap = (pi * (ID_st + OD_st) * L_stack) / (16 * 2);        % Area of the airgap [m2]
 
-A_PM = L_stack * w_PM;  % Crossectional area of PM
-w_tooth = 5.73 * m;     % Width of the tooth
+A_PM = L_stack * w_PM;                  % Crossectional area of PM
+w_tooth = 0.00573;                      % Width of the tooth
 l_tooth = Hs0 + Hs1 + Hs2 + Rs;         % [m] length of the flux path in the stator tooth
 A_tooth = 2.5 * w_tooth * L_stack;      % [m] width of the stator yoke
 
@@ -53,8 +54,8 @@ w_rot = w_PM;                                                   % [m] width of t
 A_rot  = w_PM * L_stack;                                        % Crossection area of rotor
 
 % For stator yoke
-dsy1 = ID_st + 2 * (Hs0 + Hs1 + Hs2 + Rs);      % Inner diameter of the flux path on the stator yoke
-dsy2 = OD_st;       % outer diameter of the flux path in the stator yoke
+dsy1 = ID_st + 2 * (Hs0 + Hs1 + Hs2 + Rs);  % Inner diameter of the flux path on the stator yoke
+dsy2 = OD_st;                               % outer diameter of the flux path in the stator yoke
 dsym = (dsy2 + dsy1) / 2;                   % [m] middle diamter of the stator yoke     
 Asy = ((dsy2 - dsy1) / 2) * L_stack;        % [m2]the crossectional area of the flux path in the stator yoke
 lsy = ((4 * pi * dsym) / 48) + ((dsy2 - dsy1) / 2);     % [m] length of the flux path in the stator, taking four teeth
@@ -67,11 +68,11 @@ B_steel = BH_data(:, 2);  % Second column corresponds to B (tesla)
 
 %% Magnets charactaristics
 H_c = 920000;               % Coercivity of the PM, choosing N36Z_20
-F_c = H_c * t_PM;   % F_c of the PM [H/m]
+F_c = H_c * t_PM;           % F_c of the PM [H/m]
 
 % Short circuit flux of PM
 B_r = mu_0 * mu_PM * H_c;
-Phi_r = B_r * A_PM;     % [Wb]
+Phi_r = B_r * A_PM;         % [Wb]
 
 %% PLOT OF LOAD & SOURCE LINE
 % Finding the operating point of the machine!
@@ -94,10 +95,10 @@ Hstator_yoke = interp1(B_steel,H_steel,Bstator_yoke,method);
 Hrot = interp1(B_steel,H_steel,Brot,method);
 
 %Let's start with mmf drops
-Fr = Hrot*l_rot;    % MMf drop of the rotor
-Fsy = Hstator_yoke*lsy; % MMF drop of the stator yoke
+Fr = Hrot*l_rot;                % MMf drop of the rotor
+Fsy = Hstator_yoke*lsy;         % MMF drop of the stator yoke
 Fst = Hstator_tooth*l_tooth;    % MMf drop of the tooth
-Fag = H_gap*l_gap;  % MMF drop of the airgap
+Fag = H_gap*l_gap;              % MMF drop of the airgap
 
 MMFload = Fr+2*Fag+2*Fst+Fsy;
 
@@ -137,16 +138,16 @@ H_tooth = interp1(B_steel, H_steel, B_tooth,"linear");
 mu_tooth = B_tooth / (H_tooth * mu_0);
 %% Reluctance calculations
 %PM
-R_PM = t_PM / (mu_0 * mu_PM * A_PM);      % Reluctance of the PM
+R_PM = t_PM / (mu_0 * mu_PM * A_PM);                % Reluctance of the PM
 
 % Reluctance of the tooth
-R_tooth = l_tooth / (mu_0 * mu_tooth * A_tooth);  % Reluctance of the tooth
+R_tooth = l_tooth / (mu_0 * mu_tooth * A_tooth);    % Reluctance of the tooth
 
 % Reluctance of the stator yoke
-R_st_yoke = lsy / (mu_0 * mu_st_yoke * Asy);    % reluctance of the stator yoke
+R_st_yoke = lsy / (mu_0 * mu_st_yoke * Asy);        % reluctance of the stator yoke
 
 % Air gap
-R_gap = l_gap / (mu_0 * A_gap);          % Reluctance of the arigap
+R_gap = l_gap / (mu_0 * A_gap);                     % Reluctance of the arigap
 
 % Rotor
 R_rot_yoke = l_rot / (mu_0 * mu_rot * w_rot * L_stack);   % reluctance of the stator yoke
@@ -155,36 +156,29 @@ R_rot_yoke = l_rot / (mu_0 * mu_rot * w_rot * L_stack);   % reluctance of the st
 R_tot = 2 * (R_tooth + R_gap + R_PM + R_rot_yoke) + R_st_yoke ;
 
 % Rated current
-J = 5 * 10^6;                    % Curent density per strand [A/m2]
-N_par = 8;                       % Number parallel branches
-A_strand = d_st^2 * pi / 4;      % Strand area, neglecting the insulatioin
+J = 5*10^6;                         % Curent density per strand [A/mm2]
+N_series = 1;                       % Number of series branches
+N_par = (2 * p) / N_series;         % Number parallel branches (N_par * N_ser = 2*p)
+A_strand = (d_st^2 * pi) / 4;         % Strand area, neglecting the insulatioin
+
+% Calculating no-load voltage
+RPM = 5500;
+f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
 
 % Calculating number of turns and current as function of number of strands
-n = 12;     % number of loops/ number of possible strands
+n = 16;                          % number of loops/ number of possible strands
 N_st = linspace(1,n,n);
 for i = 1:length(N_st)
     N_turn(i) = (A_slot * 0.45) ./ ((pi / 4) * d_st^2 * N_st(i));
     I_rms(i) = N_par * N_st(i) * A_strand * J;
-    fprintf('N_st = %.0f, N_turn = %.0f, I_phase = %.1f,\n', N_st(i), floor(N_turn(i)) ,I_rms(i));
-    i = i+1;
-end
-
-
-fprintf("Calculating no-load voltage \n")
-% Calculating no-load voltage
-RPM_max = 14000;    % amximum speed of the machine
-RPM_rated = RPM_max * (1 / 3);  % Rated speed of the machine, just before field weakening
-
-
-RPM = 5500;
-f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
-
-fprintf("The speed is: = %.0f [rpm] \n", RPM)
-for i = 1:length(N_turn)
     E_0(i) = (sqrt(12) * pi * f .* N_turn(i) * k_w * q * r * p * phi) / N_par;
-    fprintf("Induced phase2phase voltage = %.1f, N_turn = %.1f\n", E_0 (i), floor(N_turn(i)));
-    i = i+1;
+    fprintf('N_st = %d, N_turn = %d, I_phase = %.1f, E_0 = %.1f \n', N_st(i), floor(N_turn(i)) ,I_rms(i),E_0(i));
+  
 end
+
+Omega_r = RPM * pi / 30;
+N_turn = floor(800 * 0.995 * N_par) / (sqrt(3) * k_w * p * q * phi * Omega_r * r * p);
+N_str = floor(k_fill * A_slot * 4 / (pi *))
 
 % Choosing 
 N_turn = 45;    % Chose from the table

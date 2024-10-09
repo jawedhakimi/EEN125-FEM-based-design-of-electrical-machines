@@ -64,7 +64,7 @@ N_par = (2 * p) / N_series;         % Number parallel branches (N_par * N_ser = 
 A_strand = (d_st^2 * pi) / 4;         % Strand area, neglecting the insulatioin
 
 % Calculating no-load voltage
-RPM = 4400;
+RPM = 1000;
 f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
 fprintf("Calculating no-load voltage at: %d \n",RPM)
 
@@ -78,9 +78,14 @@ for i = 1:length(N_st)
     fprintf('N_st = %d, N_turn = %d, I_phase = %.1f, E_0 = %0.1f \n', N_st(i), floor(N_turn(i)) ,I_rms(i),E_0(i));
 end
 
-% Choosing 
-N_turn = 60;    % /////////////////////////////////// Change for 24/48 slots \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-N_st = 6;
+% Choosing
+Nturn24 = 60;
+Nstr24 = 5;
+
+Nturn48 = 29;
+Nstr48 = 6;
+N_turn = Nturn48;    % /////////////////////////////////// Change for 24/48 slots \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+N_st = Nstr48;
 fprintf("Choosing the number of turns and strands:\n N_turn = %.0f, N_str = %.0f \n", N_turn, N_st);
 
 % Magnetic flux linkage
@@ -103,28 +108,35 @@ I_rms_phase = N_par * N_st * A_strand * J;
 fprintf('The maximume phase2phase induced voltage at: \n %.0f [RPM] is  %.2f [V] and I_phase = %.2f [A] \n', RPM, EMF_phase2phase_max, I_rms_phase)
 
 
-%%
+%% From simulation
 % Correct function name
-data = readtable('withAdot_bitch.csv');
+DB24 = readtable('withAdot_bitch.csv');
 % Extract columns as arrays (vectors)
-D = data.('Distance_mm_');  % Adjust this to the actual column name from your CSV file
-B = data.('B_normal__');
+D24 = DB24.('Distance_mm_');  % Adjust this to the actual column name from your CSV file
+B24 = DB24.('B_normal__');
 % Save the variables to a .mat file
-save('vectors_for_matlab.mat', 'D', 'B');
+save('vectors_for_matlab.mat', 'D24', 'B24');
 
-% Time step delta(t)
-delta = 0.5845; 
-phi_simulatioin = sum(delta * L_stack * 10^-6 .* -B);  % [mWb]
+delta = 0.5845 * 10^-3; % Distance step delta
+phi_sim = sum(delta * L_stack .* -B24);  % [Wb]
+Psi_PMSim = k_w * p * q * r * phi_sim * N_turn / N_par;
+
+%% Calculating Ld and Lq inductances exported from simulation
+
+LdLq24 = readtable("LdLq inductances for 24 slot SMPMSM.csv");
+time24 = LdLq24.("Time_ms_");
+Ld24 = mean(LdLq24.("L_d_Axis__uH_"))*10^-6;
+Lq24 = mean(LdLq24.("L_q_Axis__uH_"))*10^-6;
 
 
-%% Calculating L_d and L_q from simulations 48 slot
-wt = 0;
-T = (2/3)*[cos(wt) cos(wt-(2*pi/3)) cos(wt+(2*pi)/3)
--sin(wt) -sin(wt-(2*pi)/3) -sin(wt+(2*pi)/3)
-1/2 1/2 1/2];
-
-L_phase = [53.674 -7.0635 -7.0335
-    -7.0635 53.28 -7.0315
-    -7.0335 -7.0315 53.519];
-L_dq = T * L_phase * inv(T);
+% %% Calculating L_d and L_q from simulations 48 slot
+% wt = 0;
+% T = (2/3)*[cos(wt) cos(wt-(2*pi/3)) cos(wt+(2*pi)/3)
+% -sin(wt) -sin(wt-(2*pi)/3) -sin(wt+(2*pi)/3)
+% 1/2 1/2 1/2];
+% 
+% L_phase = [53.674 -7.0635 -7.0335
+%            -7.0635 53.28 -7.0315
+%            -7.0335 -7.0315 53.519];
+% L_dq = T * L_phase * inv(T);
 
