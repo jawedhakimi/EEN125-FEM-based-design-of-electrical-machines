@@ -7,7 +7,7 @@ mu_0 = 4* pi *10^-7; % Vacuum permeability [H/m]
 mu_PM = 1.03;        % Magnets relative permeability
 
 % Given parameters
-Q = 48;             % Number of slots  /////////////////////////////////// Change for 24/48 slots \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+Q = 48;             % Number of slots  
 p = 4;              % Number of pole pairs
 k_w = 1;            % Winding factor, assuming 1
 m = 3;              % Number of phases
@@ -51,11 +51,8 @@ phi = MMF / (R_PM + R_gap);         % Short circuit flux [Wb], Assuming ideal st
 Hs0 = 0.004;
 A_outer = (((2/3) * (OD_st - ID_st)) + ID_st)^2 * pi / 4;   % Assuming the slot covers 2/3 of the yoke area
 A_iner = (ID_st + Hs0)^2 * pi / 4;
-A_slot = (A_outer - A_iner) / (2 * Q);                      % Slot area [m2]
-
-A_slot48 = 197.15*10^-6;            % [m^2]from Simulation for 48 slots
-A_slot24 = 403.05*10^-6;            % [m^2]from Simulation for 24 slots
-A_slot =  A_slot48;                 % /////////////////////////////////// Change for 24/48 slots \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\                                    
+% A_slot = (A_outer - A_iner) / (2 * Q);                      % Slot area [m2]
+A_slot = 197.15*10^-6;            % [m^2]from Simulation for 48 slots                                    
 
 % Rated current
 J = 5*10^6;                         % Curent density per strand [A/mm2]
@@ -79,13 +76,8 @@ for i = 1:length(N_st)
 end
 
 % Choosing
-Nturn24 = 60;
-Nstr24 = 5;
-
-Nturn48 = 29;
-Nstr48 = 6;
-N_turn = Nturn48;    % /////////////////////////////////// Change for 24/48 slots \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-N_st = Nstr48;
+N_turn = 29;
+N_st = 6;
 fprintf("Choosing the number of turns and strands:\n N_turn = %.0f, N_str = %.0f \n", N_turn, N_st);
 
 % Magnetic flux linkage
@@ -108,8 +100,7 @@ I_rms_phase = N_par * N_st * A_strand * J;
 fprintf('The maximume phase2phase induced voltage at: \n %.0f [RPM] is  %.2f [V] and I_phase = %.2f [A] \n', RPM, EMF_phase2phase_max, I_rms_phase)
 
 
-%% From simulation
-% Correct function name
+%% Flux from simulation for 24 slot
 DB24 = readtable('withAdot_bitch.csv');
 % Extract columns as arrays (vectors)
 D24 = DB24.('Distance_mm_');  % Adjust this to the actual column name from your CSV file
@@ -123,11 +114,22 @@ Psi_PMSim = k_w * p * q * r * phi_sim * N_turn / N_par;
 
 %% Calculating Ld and Lq inductances exported from simulation
 
-LdLq24 = readtable("LdLq inductances for 24 slot SMPMSM.csv");
-time24 = LdLq24.("Time_ms_");
-Ld24 = mean(LdLq24.("L_d_Axis__uH_"))*10^-6;
-Lq24 = mean(LdLq24.("L_q_Axis__uH_"))*10^-6;
+LdLq = readtable('48slot_ldlq_updated.csv');
+time = LdLq.("Time_ms_");
+LdSim = mean(LdLq.("L_d_Axis__uH_"))*10^-6;
+LqSim = mean(LdLq.("L_q_Axis__uH_"))*10^-6;
 
+%% Flux linkages of the phases
+psi_phases = readtable('48slot_fluxLinkage_updated.csv');
+psi_time = psi_phases.Time_ms_;
+psi_A = psi_phases.FluxLinkage_PhaseA__Wb_;
+psi_B = psi_phases.FluxLinkage_PhaseB__Wb_;
+psi_C = psi_phases.FluxLinkage_PhaseC__Wb_;
+plot(psi_time,psi_A,'r'), hold on
+plot(psi_time,psi_B,'b'), hold on
+plot(psi_time,psi_C,'k'), grid on
+legend('\Psi_A','\Psi_B','\Psi_C')
+xlabel('time[ms]'), ylabel('\Psi [Wb]')
 
 % %% Calculating L_d and L_q from simulations 48 slot
 % wt = 0;
