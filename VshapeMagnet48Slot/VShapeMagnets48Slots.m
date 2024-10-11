@@ -73,7 +73,6 @@ F_c = H_c * t_PM;           % F_c of the PM [H/m]
 % Short circuit flux of PM
 B_r = mu_0 * mu_PM * H_c;
 Phi_r = B_r * A_PM;         % [Wb]
-
 %% PLOT OF LOAD & SOURCE LINE
 % Finding the operating point of the machine!
 
@@ -167,7 +166,7 @@ f = (RPM  * p) / 60;   % Electrical rotation per second (rps)
 
 Omega_r = RPM * pi / 30;
 
-N_turn = floor(800 * N_par) / (sqrt(3) * k_w * p * q * phi * Omega_r * r * p);
+N_turn = floor((800 * N_par) / (sqrt(3) * k_w * p * q * phi * Omega_r * r * p));
 N_st = floor(k_fill * A_slot * 4 / (pi * d_st^2 * N_turn * r));
 I_rms_phase = N_par * N_st * A_strand * J;
 

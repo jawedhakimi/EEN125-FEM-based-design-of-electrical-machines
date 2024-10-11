@@ -23,8 +23,7 @@ l_gap = 0.0008;             % Airgap [m]
 t_PM = 0.005;               % Magnet thickness [m]
 D_rot = ID_st - 2 * (l_gap + t_PM);     % Rotor diamter [m]
 
-% Reluctance calculations
-
+%% Reluctance calculations
 %PM
 w_PM = (D_rot * pi * 0.995) / 8;        % Width of the PM [m]
 A_PM = L_stack * w_PM;                  % Area of PM [m2]
@@ -55,10 +54,10 @@ A_iner = (ID_st + Hs0)^2 * pi / 4;
 A_slot = 197.15*10^-6;            % [m^2]from Simulation for 48 slots                                    
 
 % Rated current
-J = 5*10^6;                         % Curent density per strand [A/mm2]
+J = 5.3*10^6;                         % Curent density per strand [A/mm2]
 N_series = 1;                       % Number of series branches
 N_par = (2 * p) / N_series;         % Number parallel branches (N_par * N_ser = 2*p)
-A_strand = (d_st^2 * pi) / 4;         % Strand area, neglecting the insulatioin
+A_strand = (d_st^2 * pi) / 4;       % Strand area, neglecting the insulatioin
 
 % Calculating no-load voltage
 RPM = 1000;
@@ -95,21 +94,21 @@ L_q = (N_q^2 * p) / (R_q * N_par^2);    % q-axis inductance
 
 
 EMF = (sqrt(2) * pi * f .* N_turn * k_w * q * r * p * phi) / N_par;     % RMS phase voltage
-EMF_phase2phase_max = EMF * sqrt(6);    % maximum phase2phase voltage
+EMF_phase2phase_max = EMF * sqrt(6);                                    % maximum phase2phase voltage
 I_rms_phase = N_par * N_st * A_strand * J;
 fprintf('The maximume phase2phase induced voltage at: \n %.0f [RPM] is  %.2f [V] and I_phase = %.2f [A] \n', RPM, EMF_phase2phase_max, I_rms_phase)
 
 
-%% Flux from simulation for 24 slot
-DB24 = readtable('withAdot_bitch.csv');
+%% Flux from simulation
+DB = readtable('withAdot_bitch.csv');
 % Extract columns as arrays (vectors)
-D24 = DB24.('Distance_mm_');  % Adjust this to the actual column name from your CSV file
-B24 = DB24.('B_normal__');
+D = DB.('Distance_mm_');  % Adjust this to the actual column name from your CSV file
+B = DB.('B_normal__');
 % Save the variables to a .mat file
-save('vectors_for_matlab.mat', 'D24', 'B24');
+save('vectors_for_matlab.mat', 'D', 'B');
 
 delta = 0.5845 * 10^-3; % Distance step delta
-phi_sim = sum(delta * L_stack .* -B24);  % [Wb]
+phi_sim = sum(delta * L_stack .* -B);  % [Wb]
 Psi_PMSim = k_w * p * q * r * phi_sim * N_turn / N_par;
 
 %% Calculating Ld and Lq inductances exported from simulation
