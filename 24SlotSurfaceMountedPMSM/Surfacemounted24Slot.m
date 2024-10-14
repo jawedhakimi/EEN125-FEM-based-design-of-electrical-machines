@@ -44,8 +44,11 @@ MMF = H_c * t_PM;                   % MMF of the PM [H/m]
 % Short circuit flux of PM
 Phi_r = MMF / R_PM;                 % [Wb]
 
+R_tot = 2 * (R_PM + R_gap);         % Total reluctance of the machine
+MMF_tot = 2 * MMF;
+
 % Calculating the flux
-phi_noLoad = MMF / (R_PM + R_gap);         % Short circuit flux [Wb], Assuming ideal steel with no MMF loss and infinit permeability 
+phi_noLoad = MMF_tot / R_tot;         % Short circuit flux [Wb], Assuming ideal steel with no MMF loss and infinit permeability 
 
 % Calculating slot area
 Hs0 = 0.004;
@@ -84,8 +87,8 @@ fprintf("Choosing the number of turns and strands:\n N_turn = %.0f, N_str = %.0f
 Psi_PM = k_w * p * q * r * phi_noLoad * N_turn / N_par;
 
 % d and q-axis reluctances
-R_d = (R_PM + R_gap);   % d-axis reluctance
-R_q = (R_PM + R_gap);   % q-axis reluctance
+R_d = R_tot;   % d-axis reluctance
+R_q = R_tot;   % q-axis reluctance
 % Assuming the steel has no loss and is ideal. The reluctance is only due to the magnets and the air.
 % since the machine is salient, the d and q-axis reluctances are the same.
 N_d = N_turn * k_w * q * r;
@@ -116,8 +119,8 @@ Psi_PMSim = k_w * p * q * r * phi_sim * N_turn / N_par;
 
 LdLq = readtable('24slot_ldlq_updated.csv');
 time = LdLq.("Time_ms_");
-Ld_Sim = mean(LdLq.("L_d_Axis__uH_"))*10^-6;
-Lq_Sim = mean(LdLq.("L_q_Axis__uH_"))*10^-6;
+LdSim = mean(LdLq.("L_d_Axis__uH_"))*10^-6;
+LqSim = mean(LdLq.("L_q_Axis__uH_"))*10^-6;
 
 %% Flux linkages of the phases
 psi_phases = readtable('24slot_fluxLinkage_updated.csv');

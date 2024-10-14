@@ -35,16 +35,20 @@ w_gap = ((ID_st - l_gap) * pi) / 8; % Width of the airgag [m], the circumfrance 
 A_gap = L_stack * w_gap;            % Area of the airgap [m2]
 R_gap = l_gap  / (mu_0 * A_gap);    % Reluctance of the arigap
 
+R_tot = 2 * (R_PM + R_gap);
+
 
 % Calculating the MMF of the PM
 H_c = 920000;                       % Coercivity of the PM, choosing N36Z_20
 MMF = H_c * t_PM;                   % MMF of the PM [H/m]
 
+MMF_tot = 2 * MMF;
+
 % Short circuit flux of PM
 Phi_r = MMF / R_PM;                 % [Wb]
 
 % Calculating the flux
-phi = MMF / (R_PM + R_gap);         % Short circuit flux [Wb], Assuming ideal steel with no MMF loss and infinit permeability 
+phi_NoLoad = MMF_tot / R_tot;         % Short circuit flux [Wb], Assuming ideal steel with no MMF loss and infinit permeability 
 
 % Calculating slot area
 Hs0 = 0.004;
@@ -70,7 +74,7 @@ N_st = linspace(1,n,n);
 for i = 1:length(N_st)
     N_turn(i) = (A_slot * 0.45) ./ (A_strand * N_st(i));
     I_rms(i) = N_par * N_st(i) * A_strand * J;
-    E_0(i) = (sqrt(12) * pi * f .* N_turn(i) * k_w * q * r * p * phi) / N_par;
+    E_0(i) = (sqrt(12) * pi * f .* N_turn(i) * k_w * q * r * p * phi_NoLoad) / N_par;
     fprintf('N_st = %d, N_turn = %d, I_phase = %.1f, E_0 = %0.1f \n', N_st(i), floor(N_turn(i)) ,I_rms(i),E_0(i));
 end
 
@@ -80,11 +84,11 @@ N_st = 6;
 fprintf("Choosing the number of turns and strands:\n N_turn = %.0f, N_str = %.0f \n", N_turn, N_st);
 
 % Magnetic flux linkage
-Psi_PM = k_w * p * q * r * phi * N_turn / N_par;
+Psi_PM = k_w * p * q * r * phi_NoLoad * N_turn / N_par;
 
 % d and q-axis reluctances
-R_d = (R_PM + R_gap);   % d-axis reluctance
-R_q = (R_PM + R_gap);   % q-axis reluctance
+R_d = R_tot;   % d-axis reluctance
+R_q = R_tot;   % q-axis reluctance
 % Assuming the steel has no loss and is ideal. The reluctance is only due to the magnets and the air.
 % since the machine is salient, the d and q-axis reluctances are the same.
 N_d = N_turn * k_w * q * r;
@@ -93,7 +97,7 @@ L_d = (N_d^2 * p) / (R_d * N_par^2);    % d-axis inductance
 L_q = (N_q^2 * p) / (R_q * N_par^2);    % q-axis inductance
 
 
-EMF = (sqrt(2) * pi * f .* N_turn * k_w * q * r * p * phi) / N_par;     % RMS phase voltage
+EMF = (sqrt(2) * pi * f .* N_turn * k_w * q * r * p * phi_NoLoad) / N_par;     % RMS phase voltage
 EMF_phase2phase_max = EMF * sqrt(6);                                    % maximum phase2phase voltage
 I_rms_phase = N_par * N_st * A_strand * J;
 fprintf('The maximume phase2phase induced voltage at: \n %.0f [RPM] is  %.2f [V] and I_phase = %.2f [A] \n', RPM, EMF_phase2phase_max, I_rms_phase)
