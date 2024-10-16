@@ -15,14 +15,10 @@ q = Q / (2 * m * p);        % Slots per pole per pahse
 
 %% Dimensioins
 L_stack = 0.150;
-R_gap = 0.0786;
 L_gap = 0.0006;     % Airgap
 W_tooth = 0.0364;   % Width of one tooth, assuming slot and tooth has the same width
-W_gap2 = (2 * pi * R_gap) / (2 * p);
-
 W_gap = 3 * W_tooth;
-A_gap = W_gap2 * L_stack;
-
+A_gap = W_gap * L_stack;
 
 B_s0 = 0.00002;       % Slot gap
 H_s0 = 0.0002;        % Width of the slot gap
@@ -35,11 +31,11 @@ R_Leakage = 3 * (B_s0 / (mu_0 * H_s0 * L_stack));
  N_turn = 20;       % Assuming
  N_ser = 1;
  N_par = (2 * p) / N_ser;       % Number of parallel branches
- N_eq = (kw * p * q * r * N_turn) / N_par;        % Equivalent number of turns
+ N_eq = kw * p * q * r * N_turn / N_par;        % Equivalent number of turns
  
  %% Inductances
 
- L_m = (N_eq^2) / (R_gap);
+ L_m = (N_eq^2) / (2 * R_gap);
  L_mLeakage =  N_eq^2 / R_Leakage;  
  
  InductanceRatio = L_mLeakage / L_m
