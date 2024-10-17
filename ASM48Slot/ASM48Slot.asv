@@ -60,22 +60,14 @@ Np = 4;
 m = 3;
 Nlayer = 1;
 Nturn = 17;
-q = Q / (2 * Np * m);
+qs = Qs / (2 * Np * m);
 Npb = 4;
-Rslotcenter = 0.08693;
-Npitch = 10;
-Lpitch = (1.2 * 2 * pi * Rslotcenter * Npitch) / Q;
-Lendext = 0.025;
+Rslotcenter = 0.08693
+Lpitch = 
 Lew = 2 * (2 * Lendext + Lpitch);
-Law = 2 * L_stack;
 Lcoil = Law + Lew;
-Astrand = (d_strand / 2)^2 * pi;
-Acoil = Astrand * N_strand;
-Rs = (Np * Nlayer * q * Rho_Co * Nturn^2 * Lcoil) / (2 * N_pb^2 * Acoil);
-
-%% 
-
-Rs2 = (3110 / 250^2) / 3;
+Law = 2 * L_stack;
+Astrand = (d_strand / 2)*pi;
 
 
 
